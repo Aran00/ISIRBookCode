@@ -45,7 +45,7 @@ print arr_slice1
 print arr2.T
 arr3 = np.dot(arr2, arr2.T)
 print arr3
-print lg.inv(np.array([[1, 0],[0, 1]], dtype=np.int32))
+print lg.inv(np.array([[1, 0], [0, 1]], dtype=np.int32))
 print np.std(arr1)
 print np.std(arr2)
 
