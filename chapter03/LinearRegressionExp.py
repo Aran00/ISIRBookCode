@@ -67,7 +67,6 @@ class LinearRegressionExp:
         print "RSE is ", np.sqrt(results.mse_resid)
         print "RSS is ", results.ssr
         '''
-        print "vif is ",
 
     def stat_multi_include_interaction(self):
         mod = smf.ols(formula="medv ~ lstat * age", data=self.df)
