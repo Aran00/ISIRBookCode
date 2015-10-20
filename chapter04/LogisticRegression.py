@@ -5,8 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import tableplot as tp
 from pandas import DataFrame, Series
-
 
 class LogisticRegression:
     def __init__(self):
@@ -24,28 +24,19 @@ class LogisticRegression:
         plt.show()
 
     '''
-    The last 2 params: ndarray
+    The 2 list params: ndarray
     '''
     def output_table(self, res, predict_probs, real_values, glm_fit=True):
         header = "predict   real"
         model = res.model
         print header
-        pred = predict_probs.map(lambda x: 1 if x > 0.5 else 0)
         '''
         #If transform y column to 0-1 in advance, the model.endog_names would be one variable, not a list
         output_data = DataFrame([[0, 0], [0, 0]], columns=[0,1], index=[0,1])
         zero_one_columns = [0, 1]
         '''
         zero_one_columns = self.get_real_zero_one_columns(res) if glm_fit else [0, 1]
-        output_data = DataFrame([[0, 0], [0, 0]], columns=zero_one_columns, index=zero_one_columns)
-        length = len(pred)
-        for i in xrange(0, length):  # or len(obj)
-            # Use iloc here
-            output_data.ix[pred.iloc[i], int(real_values.iloc[i])] += 1
-        print output_data
-        print "The predict correctness rate is", (output_data.ix[0, 0] + output_data.ix[1, 1])/length
-        print "The correctness of 0-0 is", float(output_data.ix[0, 0])/(output_data.ix[0, 0] + output_data.ix[0, 1])
-        print "The correctness of 1-1 is", float(output_data.ix[1, 1])/(output_data.ix[1, 0] + output_data.ix[1, 1])
+        tp.output_table(predict_probs, real_values, zero_one_col_texts=zero_one_columns)
 
     def get_real_zero_one_columns(self, res):
         model = res.model
