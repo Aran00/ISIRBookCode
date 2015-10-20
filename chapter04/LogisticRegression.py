@@ -26,7 +26,7 @@ class LogisticRegression:
     '''
     The 2 list params: ndarray
     '''
-    def output_table(self, res, predict_probs, real_values, glm_fit=True):
+    def output_binary_table(self, res, predict_probs, real_values, glm_fit=True):
         header = "predict   real"
         model = res.model
         print header
@@ -36,7 +36,7 @@ class LogisticRegression:
         zero_one_columns = [0, 1]
         '''
         zero_one_columns = self.get_real_zero_one_columns(res) if glm_fit else [0, 1]
-        tp.output_table(predict_probs, real_values, zero_one_col_texts=zero_one_columns)
+        tp.output_table_with_prob(predict_probs, real_values, zero_one_col_texts=zero_one_columns)
 
     def get_real_zero_one_columns(self, res):
         model = res.model
@@ -64,7 +64,7 @@ class LogisticRegression:
         print result.summary()
         # In logit fit there are errors here. Not sure why...
         if glm_fit:
-            self.output_table(result, result.fittedvalues, Series(model.endog), glm_fit)
+            self.output_binary_table(result, result.fittedvalues, model.endog.astype(int), glm_fit)
 
     def divide_train_set_and_fit(self, full_entities=True):
         train_data = self.df.ix[self.df['Year'] < 2005, :]
@@ -76,8 +76,8 @@ class LogisticRegression:
         result = model.fit()
         print result.summary()
         predict_result = result.predict(exog=test_data)
-        real_val = test_data['Direction'].map(lambda x: 0 if x == 'Up' else 1)
-        self.output_table(result, Series(predict_result), real_val)
+        real_val = test_data['Direction'].map(lambda x: 1 if x == 'Down' else 0)
+        self.output_binary_table(result, predict_result, real_val)
         return result
 
     def predict_value(self, model_fit_result, exog):
@@ -90,9 +90,10 @@ class LogisticRegression:
         self.df['Direction'] = self.df['Direction'].map(lambda x: 1 - x)
         self.logistic_fit(glm_fit=False)
 
+
 if __name__ == '__main__':
     logis = LogisticRegression()
     #logis.show_correlation()
-    logis.logistic_fit(glm_fit=True)
-    #result = logis.divide_train_set_and_fit(False)
-    #logis.predict_value(result, DataFrame([[1.2, 1.1], [1.5, -0.8]], columns=['Lag1', 'Lag2']))
+    #logis.logistic_fit(glm_fit=True)
+    result = logis.divide_train_set_and_fit(False)
+    logis.predict_value(result, DataFrame([[1.2, 1.1], [1.5, -0.8]], columns=['Lag1', 'Lag2']))
