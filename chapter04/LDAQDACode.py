@@ -2,7 +2,7 @@ __author__ = 'Aran'
 
 import numpy as np
 import pandas as pd
-import tableplot as tp
+from islrtools import tableplot as tp
 from pandas import DataFrame, Series
 from sklearn.lda import LDA
 from sklearn.qda import QDA

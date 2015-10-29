@@ -1,7 +1,7 @@
 __author__ = 'ryu'
 
 import pandas as pd
-import tableplot as tp
+from islrtools import tableplot as tp
 from sklearn import neighbors
 
 

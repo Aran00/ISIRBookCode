@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-import tableplot as tp
+from islrtools import tableplot as tp
 from pandas import DataFrame, Series
 
 class LogisticRegression:
@@ -59,6 +59,7 @@ class LogisticRegression:
         if glm_fit is True:
             model = smf.glm(formula, data=self.df, family=sm.families.Binomial())
         else:
+            # In fact, this function has wrong fittedvalues, but it's predict value is still right.
             model = smf.logit(formula, data=self.df)
         result = model.fit()
         print result.summary()

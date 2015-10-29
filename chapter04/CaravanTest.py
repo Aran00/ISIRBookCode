@@ -1,12 +1,11 @@
 __author__ = 'ryu'
 
 import pandas as pd
-import tableplot as tp
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import sklearn.preprocessing as pp
 from sklearn import neighbors
-
+from islrtools import tableplot as tp
 
 class CaravanTest:
     def __init__(self):
