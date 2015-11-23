@@ -25,7 +25,6 @@ class KNNClassifier:
         preds = clf.predict(test_X)
         tp.output_table(preds, test_y)
 
-
 if __name__ == '__main__':
     knn_example = KNNClassifier()
     # knn_example.knn_fit_and_pred(1)

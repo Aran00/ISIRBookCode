@@ -91,7 +91,6 @@ class LogisticRegression:
         self.df['Direction'] = self.df['Direction'].map(lambda x: 1 - x)
         self.logistic_fit(glm_fit=False)
 
-
 if __name__ == '__main__':
     logis = LogisticRegression()
     #logis.show_correlation()
