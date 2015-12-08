@@ -2,6 +2,7 @@ from sklearn import linear_model
 from sklearn.linear_model import LinearRegression
 from pandas import DataFrame, Series
 from statsmodels.stats.api import anova_lm
+from islrtools import poly
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -73,6 +74,17 @@ class LinearRegressionExp:
         res = mod.fit()
         print res.summary()
 
+    def stat_multi_include_poly(self):
+        y = self.df['medv']
+        x_vec = self.df['lstat']
+        Z, norm2, alpha = poly.ortho_poly_fit(x_vec.tolist(), 5)
+        results = sm.OLS(y, Z).fit()
+
+        print results.summary()
+        print "The coeffcients are: \n", results.params
+        print "The coeffcients intervals are: \n", results.conf_int()
+        print "The predicted values are: ", results.predict(poly.ortho_poly_predict([1, 10, 15], alpha, norm2, 5))
+
     def stat_multi_include_calculation(self):
         #mod = smf.ols(formula="medv ~ lstat + I(lstat ** 2)", data=self.df)
         mod = smf.ols(formula="medv ~ np.log(rm)", data=self.df)
@@ -117,7 +129,8 @@ if __name__ == '__main__':
     #lr.stat_r_style_regression()
     #lr.stat_multi_include_calculation()
     #lr.anova_test()
-    lr.try_quality_variables()
+    #lr.try_quality_variables()
+    lr.stat_multi_include_poly()
 
 '''
 clf = linear_model.LinearRegression()
