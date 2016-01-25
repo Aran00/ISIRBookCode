@@ -16,9 +16,10 @@ class ValidationSet:
         self.x_cols = ['horsepower']
         nprand.seed(seed)
         ''' Beware that the first param is not 392 '''
-        train = nprand.choice(self.df.index.values, 196)
+        train = nprand.choice(self.df.index.values, 196, replace=False)
         self.train_set = self.df.ix[train, :]
         test = np.setdiff1d(self.df.index.values, train)
+        print len(test)
         self.test_set = self.df.ix[test, :]
 
     def poly_1(self):
@@ -34,7 +35,7 @@ class ValidationSet:
         print np.mean(np.square(self.test_set[self.y_col] - predict_values))
 
 if __name__ == '__main__':
-    vs = ValidationSet()
+    vs = ValidationSet(2)
     vs.poly_1()
     vs.poly_i(2)
     vs.poly_i(3)
