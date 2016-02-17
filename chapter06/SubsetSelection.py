@@ -18,9 +18,7 @@ class SubsetSelection:
         hitter = pd.read_csv("../../ISIRExerciseCode/dataset/Hitter.csv", index_col=0, na_values=['NA'])
         self.hitter = hitter.dropna()
         self.transform_label()
-        train_index, test_index = self.train_index()
-        self.train_set = self.hitter.iloc[train_index]
-        self.test_set = self.hitter.iloc[test_index]
+        self.train_set, self.test_set = self.train_index()
 
     def transform_label(self):
         trans_cols = ["League", "Division", "NewLeague"]
@@ -37,7 +35,8 @@ class SubsetSelection:
             train=sample(c(1, 0), 263, rep=1)
         """)
         # Need to substract 1 here
-        train = np.array(data, dtype=int)
+        train = np.array(data, dtype=bool)
+        '''
         train_index = []
         test_index = []
         for i in xrange(len(train)):
@@ -45,7 +44,9 @@ class SubsetSelection:
                 train_index.append(i)
             else:
                 test_index.append(i)
-        return train_index, test_index
+        return self.hitter.iloc[train_index], self.hitter.iloc[test_index]
+        '''
+        return self.hitter.ix[train, :], self.hitter.ix[~train, :]
 
     def output_best_subsets(self):
         subset_seq, stat = subset.regsubsets("Salary~.", self.hitter, 19, "backward")
@@ -68,7 +69,7 @@ class SubsetSelection:
         print test_mse, "\n", test_mse.idxmin(), np.std(test_mse)
 
     def cross_validation_best(self):
-        subset_seq, stat = subset.regsubsets("Salary~.", self.train_set, 19, "forward")
+        subset_seq, stat = subset.regsubsets("Salary~.", self.train_set, 19, "backward")
         cv_mse = Series(np.zeros(len(stat)), index=stat.index)
         for idx in subset_seq.index:
             x_cols = self.get_used_x_cols(subset_seq, idx)
