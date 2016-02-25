@@ -2,6 +2,7 @@ __author__ = 'Aran'
 
 import numpy as np
 import pandas as pd
+from islrtools import datasets
 from sklearn import preprocessing, linear_model, decomposition
 from sklearn.pipeline import Pipeline
 from sklearn.grid_search import GridSearchCV
@@ -11,23 +12,8 @@ from sklearn.cross_decomposition import PLSRegression
 ''' Time to devise a global data loading function '''
 class PCRAndPLS:
     def __init__(self):
-        hitter = pd.read_csv("../../ISIRExerciseCode/dataset/Hitter.csv", index_col=0, na_values=['NA'])
-        hitter = hitter.dropna()
-        self.hitter = self.transform_label(hitter)
-        self.y_col = 'Salary'
-        self.y = self.hitter[self.y_col]
-        self.x_cols = self.hitter.columns.tolist()
-        self.x_cols.remove(self.y_col)
-        self.X = self.hitter.ix[:, self.x_cols]
-
-    def transform_label(self, hitter):
-        #trans_cols = ["League", "Division", "NewLeague"]
-        for col in hitter.columns.tolist():
-            if isinstance(hitter.iloc[0][col], str):
-                le = preprocessing.LabelEncoder()
-                le.fit(np.unique(hitter[col]))
-                hitter[col] = le.transform(hitter[col].values)
-        return hitter
+        hitter = datasets.load_data("Hitter", "Salary", index_col=0, na_values=['NA'])
+        self.X, self.y = hitter.data, hitter.target
 
     def pcr_test(self):
         for i in xrange(1, 8):
@@ -57,4 +43,4 @@ class PCRAndPLS:
 
 if __name__ == '__main__':
     pap = PCRAndPLS()
-    pap.pls_test()
+    pap.pcr_cv_test()

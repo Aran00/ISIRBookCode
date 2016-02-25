@@ -7,6 +7,7 @@ import sklearn.preprocessing as pp
 from sklearn import neighbors
 from islrtools import tableplot as tp
 
+
 class CaravanTest:
     def __init__(self):
         self.df = pd.read_csv("../../ISIRExerciseCode/dataset/Caravan.csv", index_col=0)
