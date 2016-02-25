@@ -6,27 +6,28 @@ from sklearn import preprocessing, linear_model, decomposition
 from sklearn.pipeline import Pipeline
 from sklearn.grid_search import GridSearchCV
 from sklearn.cross_decomposition import PLSRegression
-from pandas import Series, DataFrame
 
 
+''' Time to devise a global data loading function '''
 class PCRAndPLS:
     def __init__(self):
         hitter = pd.read_csv("../../ISIRExerciseCode/dataset/Hitter.csv", index_col=0, na_values=['NA'])
-        self.hitter = hitter.dropna()
-        self.transform_label()
+        hitter = hitter.dropna()
+        self.hitter = self.transform_label(hitter)
         self.y_col = 'Salary'
         self.y = self.hitter[self.y_col]
         self.x_cols = self.hitter.columns.tolist()
         self.x_cols.remove(self.y_col)
         self.X = self.hitter.ix[:, self.x_cols]
 
-    def transform_label(self):
-        trans_cols = ["League", "Division", "NewLeague"]
-        for col in trans_cols:
-            le = preprocessing.LabelEncoder()
-            le.fit(np.unique(self.hitter[col]))
-            series = self.hitter.loc[:, col]
-            self.hitter.loc[:, col] = Series(le.transform(series.values), index=self.hitter.index)
+    def transform_label(self, hitter):
+        #trans_cols = ["League", "Division", "NewLeague"]
+        for col in hitter.columns.tolist():
+            if isinstance(hitter.iloc[0][col], str):
+                le = preprocessing.LabelEncoder()
+                le.fit(np.unique(hitter[col]))
+                hitter[col] = le.transform(hitter[col].values)
+        return hitter
 
     def pcr_test(self):
         for i in xrange(1, 8):
