@@ -27,14 +27,12 @@ class DecisionTree:
         clf = tree.DecisionTreeClassifier()
         iris = load_iris()
         dt = clf.fit(iris.data, iris.target)
-
-        #str_buffer = StringIO()
+        # str_buffer = StringIO()
         tree.export_graphviz(dt, out_file="tree.dot")
-        #graph = pydot.graph_from_dot_data(str_buffer.getvalue())
-        #graph.write_pdf("myfile.pdf")
-        # Image(graph.create_png())
-        # graph.write("myfile.jpg")
-
+        '''
+        graph = pydot.graph_from_dot_data(str_buffer.getvalue())
+        graph.write_pdf("myfile.pdf")
+        '''
 
 if __name__ == '__main__':
     dt_test = DecisionTree()
