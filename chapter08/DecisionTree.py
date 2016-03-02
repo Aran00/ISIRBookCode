@@ -25,7 +25,9 @@ class DecisionTree:
         self.hitter[self.target_feature] = self.hitter[self.target_feature].map(lambda x: 1 if x > 8 else 0)
 
     def split_data(self):
+        np.random.seed(1)
         train_index = random.choice(self.hitter.index, 200, replace=False)
+        # print train_index
         train_cond = self.hitter.index.isin(train_index)
         return self.hitter.ix[train_cond], self.hitter.ix[~train_cond]
 
@@ -35,17 +37,31 @@ class DecisionTree:
         X, y = train[self.feature_names], train[self.target_feature]
         dt = DecisionTreeClassifier()
         param_dist = {
-            "criterion": ["gini", "entropy"],
-            "max_features": range(1, len(self.target_feature) + 1),
-            "max_depth": range(1, 20)
+            # "criterion": ["gini", "entropy"],
+            "max_features": np.arange(1, 9),
+            "max_depth": np.arange(2, 16)
         }
         n_iter_search = 20
         random_search = RandomizedSearchCV(dt, param_distributions=param_dist, n_iter=n_iter_search)
+        for i in xrange(10):
+            np.random.seed(i)
+            start = time()
+            random_search.fit(X, y)
+            print("RandomizedSearchCV took %.2f seconds for %d candidates"
+                  " parameter settings." % ((time() - start), n_iter_search))
+            DecisionTree.report(random_search.grid_scores_, n_top=1)
+            top_score = sorted(random_search.grid_scores_, key=itemgetter(1), reverse=True)[0]
+            print "Randomized search choose best:", top_score.parameters
+
+        # run grid search
+        np.random.seed(1)
+        grid_search = GridSearchCV(dt, param_grid=param_dist)
         start = time()
-        random_search.fit(X, y)
-        print("RandomizedSearchCV took %.2f seconds for %d candidates"
-              " parameter settings." % ((time() - start), n_iter_search))
-        DecisionTree.report(random_search.grid_scores_)
+        grid_search.fit(X, y)
+        print("\n\nGridSearchCV took %.2f seconds for %d candidate parameter settings."
+              % (time() - start, len(grid_search.grid_scores_)))
+        DecisionTree.report(grid_search.grid_scores_, n_top=3)
+
 
     ''' An overfit tree '''
     def test_decision_tree(self):
