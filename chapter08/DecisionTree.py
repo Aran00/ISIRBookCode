@@ -5,10 +5,10 @@ from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 from sklearn import tree
 from sklearn.externals.six import StringIO
-from numpy import random
 from time import time
 from operator import itemgetter
 from sklearn.metrics import confusion_matrix, classification_report
+from SplitData import split_data, report
 import numpy as np
 import pydot
 
@@ -24,18 +24,13 @@ class DecisionTree:
         data = datasets.load_data("Carseats" if classification else "Boston",
                                   self.target_feature, index_col=0, na_values=['NA'])
         self.data, self.feature_names = data.full, data.feature_names
-        self.data[self.target_feature] = self.data[self.target_feature].map(lambda x: 1 if x > 8 else 0)
-
-    def split_data(self):
-        np.random.seed(1)
-        train_index = random.choice(self.data.index, 200, replace=False)
-        # print train_index
-        train_cond = self.data.index.isin(train_index)
-        return self.data.ix[train_cond], self.data.ix[~train_cond]
+        print len(self.feature_names)
+        if classification:
+            self.data[self.target_feature] = self.data[self.target_feature].map(lambda x: 1 if x > 8 else 0)
 
     ''' Use cv to choose parameters '''
     def choose_params(self, random_search=False):
-        train, test = self.split_data()
+        train, test = split_data(self.data, 200 if self.classification else self.data.shape[0]/2)
         X, y = train[self.feature_names], train[self.target_feature]
         dt = DecisionTreeClassifier() if self.classification else DecisionTreeRegressor()
         param_dist = {
@@ -51,7 +46,7 @@ class DecisionTree:
         search.fit(X, y)
         print("RandomizedSearchCV took %.2f seconds for %d candidates"
               " parameter settings." % ((time() - start), 20))
-        DecisionTree.report(search.grid_scores_, n_top=1)
+        report(search.grid_scores_, n_top=1)
         top_score = sorted(search.grid_scores_, key=itemgetter(1), reverse=True)[0]
         print "Randomized search choose best:", top_score.parameters
         best_param = search.best_params_
@@ -91,17 +86,7 @@ class DecisionTree:
         graph.write_pdf("output/%s.pdf" % self.target_feature)
 
     def print_detail(self, dt):
-        print dt.classes_, dt.feature_importances_, dt.max_features_, dt.n_features_, dt.tree_.node_count
-
-    @staticmethod
-    def report(grid_scores, n_top=3):
-        top_scores = sorted(grid_scores, key=itemgetter(1), reverse=True)[:n_top]
-        for i, score in enumerate(top_scores):
-            print("Model with rank: {0}".format(i + 1))
-            print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
-                  score.mean_validation_score,
-                  np.std(score.cv_validation_scores)))
-            print("Parameters: {0}".format(score.parameters))
+        print dt.classes_, zip(self.feature_names, dt.feature_importances_), dt.max_features_, dt.n_features_, dt.tree_.node_count
 
 
 if __name__ == '__main__':
