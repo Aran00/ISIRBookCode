@@ -1,6 +1,7 @@
 __author__ = 'ryu'
 
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import confusion_matrix, classification_report
@@ -8,37 +9,31 @@ from examples.plot_separating_hyperplane import plot_svc
 
 
 class SVCTest:
-    def __init__(self):
-        self.init_data()
-
-    def init_data(self):
-        np.random.seed(3)
+    def __init__(self, rand_seed):
+        np.random.seed(rand_seed)
         # X = np.random.randn(20, 2)
-        N = 10
+        n = 10
         ''' train data '''
-        self.X = np.random.standard_normal(size=(2*N, 2))
-        # y = np.hstack((-np.ones(N), np.ones(N)))
-        self.y = np.array([-1]*N + [1]*N)
+        self.X = np.random.standard_normal(size=(2*n, 2))
+        # y = np.hstack((-np.ones(n), np.ones(n)))
+        self.y = np.array([-1]*n + [1]*n)
         self.X[self.y == 1] += 1
         ''' test data '''
-        self.test_X = np.random.standard_normal(size=(2*N, 2))
-        self.test_y = np.random.choice([-1, 1], 2*N)
+        self.test_X = np.random.standard_normal(size=(2*n, 2))
+        self.test_y = np.random.choice([-1, 1], 2*n)
         self.test_X[self.test_y == 1] += 1
 
-    def svc_plot_test(self, clf):
-        ''' cmap is used when c is integer '''
-        '''
-        c = map(lambda z: 'g' if z == 1 else 'r', y)
-        plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Paired)
+    def scatter_X(self):
+        """ cmap is used when c is integer """
+        # c = map(lambda z: 'g' if z == 1 else 'r', self.y)
+        plt.scatter(self.X[:, 0], self.X[:, 1], c=self.y, cmap=plt.cm.Paired)
         plt.show()
-        '''
-        # print clf
-        # clf.fit(self.X, self.y)
-        # self.print_svc_detail(clf)
-        plot_svc(clf, self.X, self.y)
 
-    def print_svc_detail(self, clf):
-        print clf.coef_, "\n", clf.intercept_, "\n", clf.support_, "\n", clf.support_vectors_
+    def svc_init(self, cost):
+        svc = SVC(kernel="linear", C=cost)
+        svc.fit(self.X, self.y)
+        self.print_svc_detail(svc)
+        return svc
 
     def svc_cv_test(self):
         # parameters = {'C': [0.001, 0.01, 0.1, 1, 5, 10, 100]}
@@ -56,8 +51,19 @@ class SVCTest:
         print cm
         print classification_report(self.test_y, y_pred)
 
+    def further_change_data(self):
+        self.X[self.y == 1] += 1
+        self.scatter_X()
+
+    @staticmethod
+    def print_svc_detail(clf):
+        print clf.coef_, "\n", clf.intercept_, "\n", clf.support_, "\n", clf.support_vectors_
+
+
 if __name__ == '__main__':
-    st = SVCTest()
-    best_model = st.svc_cv_test()
+    st = SVCTest(2)
+    st.further_change_data()
+    # best_model = st.svc_cv_test()
+    best_model = st.svc_init(cost=1e5)
     st.test_set_verify(best_model)
     plot_svc(best_model, st.X, st.y)
