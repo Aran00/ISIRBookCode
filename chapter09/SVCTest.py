@@ -57,7 +57,7 @@ class SVCTest:
 
     @staticmethod
     def print_svc_detail(clf):
-        print clf.coef_, "\n", clf.intercept_, "\n", clf.support_, "\n", clf.support_vectors_
+        print clf.dual_coef_, "\n", clf.intercept_, "\n", clf.support_, "\n", clf.support_vectors_
 
 
 if __name__ == '__main__':
