@@ -35,7 +35,7 @@ from sklearn.ensemble import VotingClassifier
 def plot_contour(clf, X):
     xx, yy = prepare_data_2d(X)
     Z = get_contour_Z(clf, xx, yy)
-    CS = plt.contourf(xx, yy, Z)
+    CS = plt.contour(xx, yy, Z)
     # plt.show()
     return CS
 
