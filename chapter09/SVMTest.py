@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.grid_search import GridSearchCV
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
+from sklearn.preprocessing import label_binarize
 from examples.plot_voting_decision_regions import plot_contour
 
 
@@ -29,7 +30,6 @@ class SVMTest:
         ''' test data '''
         self.test_X = self.X[~train_index]
         self.test_y = self.y[~train_index]
-        self.test_X[self.test_y == 1] += 1
         print len(self.test_y)
 
     def scatter_x(self, clf):
@@ -76,9 +76,23 @@ class SVMTest:
         cm = np.matrix(cm)
         print cm, 1.0 * np.matrix.trace(cm)/np.matrix.sum(cm)
 
+    def plot_roc(self):
+        random_state = np.random.RandomState(0)
+        clf = SVC(kernel='rbf', C=1, gamma=1, probability=True, random_state=random_state)
+        train_y = label_binarize(self.train_y, classes=[1, 2])
+        clf.fit(self.train_X, train_y)
+        test_y_score = clf.decision_function(self.test_X)
+        test_y = label_binarize(self.test_y, classes=[1, 2])
+        fpr, tpr = roc_curve(test_y[:, 0], test_y_score[:, 0])
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc)
+        plt.show()
 
 if __name__ == '__main__':
     st = SVMTest()
+    '''
     best_model = st.train_svm_and_plot()
     # best_model = st.choose_params()
     st.get_test_result(best_model)
+    '''
+    st.plot_roc()
