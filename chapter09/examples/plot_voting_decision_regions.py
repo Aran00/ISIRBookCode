@@ -35,10 +35,9 @@ from sklearn.ensemble import VotingClassifier
 def plot_contour(clf, X):
     xx, yy = prepare_data_2d(X)
     Z = get_contour_Z(clf, xx, yy)
-    CS = plt.contour(xx, yy, Z)
+    CS = plt.contourf(xx, yy, Z)
     # plt.show()
     return CS
-
 
 def prepare_data_2d(X):
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
@@ -46,7 +45,6 @@ def prepare_data_2d(X):
     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
                          np.arange(y_min, y_max, 0.1))
     return xx, yy
-
 
 def get_contour_Z(clf, xx, yy):
     Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])

@@ -6,16 +6,20 @@ from sklearn.svm import SVC
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc
 from sklearn.preprocessing import label_binarize
+from sklearn.multiclass import OneVsRestClassifier
 from examples.plot_voting_decision_regions import plot_contour
 
 
 class SVMTest:
+    N = 100
+
     def __init__(self, rand_seed=1):
         np.random.seed(rand_seed)
-        n = 100
+        n = SVMTest.N
         self.X = np.random.standard_normal(size=(2*n, 2))
-        self.X[0:100] += 2
-        self.X[100:150] -= 2
+        self.X[0:n] += 2
+        self.X[n:(3*n/2)] -= 2
+        # print self.X
         self.y = np.array([1]*(3*n/2) + [2]*(n/2))
         # print self.y
         ''' train data '''
@@ -79,14 +83,31 @@ class SVMTest:
     def plot_roc(self):
         random_state = np.random.RandomState(0)
         clf = SVC(kernel='rbf', C=1, gamma=1, probability=True, random_state=random_state)
-        train_y = label_binarize(self.train_y, classes=[1, 2])
-        clf.fit(self.train_X, train_y)
-        test_y_score = clf.decision_function(self.test_X)
-        test_y = label_binarize(self.test_y, classes=[1, 2])
-        fpr, tpr = roc_curve(test_y[:, 0], test_y_score[:, 0])
+        self.train_y = label_binarize(self.train_y, classes=[1, 2])
+        clf.fit(self.train_X, self.train_y)
+        self.test_y = label_binarize(self.test_y, classes=[1, 2])
+        self.get_test_result(clf)
+        test_y_proba = clf.predict_proba(self.test_X)
+        fpr, tpr, thresholds = roc_curve(self.test_y[:, 0], test_y_proba[:, 1])
         roc_auc = auc(fpr, tpr)
         plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc)
         plt.show()
+
+    def multi_svm_test(self):
+        n = SVMTest.N
+        np.random.seed(1)
+        self.X = np.vstack((self.X, np.random.normal(size=(n/2, 2))))
+        self.y = np.append(self.y, [0]*(n/2))
+        self.X[self.y == 0, 1] += 2
+        # self.y = label_binarize(self.y, classes=[0, 1, 2])
+
+        classif = OneVsRestClassifier(SVC(kernel='rbf', C=10, gamma=1))
+        classif.fit(self.X, self.y)
+        print classif.label_binarizer_, classif.multilabel_
+        plot_contour(classif, self.X)
+        plt.scatter(self.X[:, 0], self.X[:, 1], c=self.y)
+        plt.show()
+
 
 if __name__ == '__main__':
     st = SVMTest()
@@ -95,4 +116,4 @@ if __name__ == '__main__':
     # best_model = st.choose_params()
     st.get_test_result(best_model)
     '''
-    st.plot_roc()
+    st.multi_svm_test()
