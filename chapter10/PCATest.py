@@ -20,11 +20,12 @@ class PCATest:
         print mean_and_std
 
     def test_pca(self):
-        X =
+        X = scale(self.X)
         pca = PCA(n_components=4)
-        clf = pca.fit(self.X)
-        X_r = clf.transform(self.X)
+        clf = pca.fit(X)
+        X_r = clf.transform(X)
         print X_r
+        print clf.explained_variance_ratio_
 
 
 if __name__ == '__main__':
